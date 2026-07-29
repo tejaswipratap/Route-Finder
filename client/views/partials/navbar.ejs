@@ -1,0 +1,41 @@
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top">
+    <div class="container-fluid px-4">
+        <a class="navbar-brand d-flex align-items-center" href="/">
+            <i class="fa-solid fa-route text-primary fs-3 me-2"></i>
+            <span class="navbar-brand-gradient fs-4">Route Finder</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarMain">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+                <li class="nav-item">
+                    <a class="nav-link <%= typeof activePage !== 'undefined' && activePage === 'home' ? 'active fw-bold text-primary' : '' %>" href="/">
+                        <i class="fa-solid fa-diagram-project me-1"></i> Visualizer
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <%= typeof activePage !== 'undefined' && activePage === 'find-route' ? 'active fw-bold text-primary' : '' %>" href="/find-route">
+                        <i class="fa-solid fa-location-arrow me-1"></i> Find Path
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <%= typeof activePage !== 'undefined' && activePage === 'about' ? 'active fw-bold text-primary' : '' %>" href="/about">
+                        <i class="fa-solid fa-graduation-cap me-1"></i> Algorithm Guide
+                    </a>
+                </li>
+            </ul>
+
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn btn-outline-secondary btn-sm rounded-circle" id="themeToggleBtn" title="Toggle Dark/Light Mode">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+
+                <a href="/admin" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                    <i class="fa-solid fa-user-shield me-1"></i> Admin Panel
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>

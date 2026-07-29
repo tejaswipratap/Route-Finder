@@ -1,0 +1,43 @@
+{
+  "name": "route-finder-shortest-path-visualizer",
+  "version": "1.0.0",
+  "description": "A production-grade, University placement level Graph Shortest Path Visualizer using Node.js, Express, EJS, MongoDB, Cytoscape.js, and manual Graph DSA implementations.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "seed": "node server/utils/seeder.js"
+  },
+  "keywords": [
+    "dsa",
+    "graph-theory",
+    "dijkstra-algorithm",
+    "bfs",
+    "dfs",
+    "visualizer",
+    "min-heap",
+    "cytoscape",
+    "nodejs",
+    "express",
+    "mongodb",
+    "ejs"
+  ],
+  "author": "University PEP Project Team",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.9",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.3.1",
+    "multer": "^1.4.5-lts.1",
+    "pdfkit": "^0.15.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}

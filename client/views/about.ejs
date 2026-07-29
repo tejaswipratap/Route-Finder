@@ -1,0 +1,101 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<div class="container py-4">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold navbar-brand-gradient">Graph Algorithms & Complexity Guide</h1>
+        <p class="text-muted lead">Deep dive into Graph Data Structures, Priority Queues, Dijkstra, A* Search, Bellman-Ford, BFS, and DFS manual implementations.</p>
+    </div>
+
+    <!-- Data Structure Comparison Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-6">
+            <div class="card glass-card h-100 p-4">
+                <h4 class="fw-bold text-primary mb-3"><i class="fa-solid fa-sitemap me-2"></i>Adjacency List Representation</h4>
+                <p class="text-muted">A collection of linked lists or maps where each node maps to a list of neighboring adjacent vertices and edge weights.</p>
+                <div class="bg-dark p-3 rounded border border-secondary font-monospace small mb-3">
+                    <span class="text-info">Delhi</span> ➔ [{ node: 'Agra', weight: 240 }, { node: 'Jaipur', weight: 280 }]<br>
+                    <span class="text-info">Agra</span> ➔ [{ node: 'Delhi', weight: 240 }, { node: 'Lucknow', weight: 335 }]
+                </div>
+                <ul class="small text-muted mb-0">
+                    <li><strong>Space Complexity:</strong> O(V + E) - Optimal for sparse road graphs.</li>
+                    <li><strong>Add Vertex:</strong> O(1) time.</li>
+                    <li><strong>Query Neighbors:</strong> O(1) map lookup.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card glass-card h-100 p-4">
+                <h4 class="fw-bold text-warning mb-3"><i class="fa-solid fa-layer-group me-2"></i>Min-Heap Priority Queue</h4>
+                <p class="text-muted">Binary Min-Heap data structure built manually to extract the vertex with minimum tentative distance in O(log V) time.</p>
+                <div class="bg-dark p-3 rounded border border-secondary font-monospace small mb-3">
+                    Array: [ (Agra: 240), (Jaipur: 280), (Dehradun: 255) ]<br>
+                    PositionMap: { 'Agra': 0, 'Jaipur': 1, 'Dehradun': 2 }
+                </div>
+                <ul class="small text-muted mb-0">
+                    <li><strong>Insert Element:</strong> O(log V) via Heapify-Up.</li>
+                    <li><strong>Extract Min:</strong> O(log V) via Heapify-Down.</li>
+                    <li><strong>Decrease Key:</strong> O(log V) via Position Map lookup.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Time & Space Complexity Summary Table -->
+    <div class="card glass-card p-4 mb-5">
+        <h3 class="fw-bold text-light mb-3"><i class="fa-solid fa-table me-2"></i>5 Algorithm Complexity Comparison Matrix</h3>
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle">
+                <thead>
+                    <tr class="table-primary">
+                        <th>Algorithm</th>
+                        <th>Data Structure Used</th>
+                        <th>Time Complexity</th>
+                        <th>Space Complexity</th>
+                        <th>Optimal For</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="fw-bold text-info">Dijkstra's Algorithm</td>
+                        <td>Adjacency List + Min-Heap</td>
+                        <td><span class="badge bg-success">O((V + E) log V)</span></td>
+                        <td>O(V + E)</td>
+                        <td>Weighted Shortest Path (Non-negative edges)</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold text-warning">A* (A-Star) Search</td>
+                        <td>Adjacency List + Min-Heap + Heuristic h(n)</td>
+                        <td><span class="badge bg-success">O((V + E) log V)</span></td>
+                        <td>O(V)</td>
+                        <td>Informed Spatial Heuristic Shortest Path</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold text-danger">Bellman-Ford Algorithm</td>
+                        <td>Edge List Array + Distance Table</td>
+                        <td><span class="badge bg-danger">O(V * E)</span></td>
+                        <td>O(V)</td>
+                        <td>Graphs with Negative Edges / Negative Cycles</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold text-info">Breadth-First Search (BFS)</td>
+                        <td>Adjacency List + Queue</td>
+                        <td><span class="badge bg-primary">O(V + E)</span></td>
+                        <td>O(V)</td>
+                        <td>Unweighted Shortest Hop Path</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold text-info">Depth-First Search (DFS)</td>
+                        <td>Adjacency List + Stack</td>
+                        <td><span class="badge bg-secondary">O(V + E)</span></td>
+                        <td>O(V)</td>
+                        <td>Deep Branch Exploration / Cycle Detection</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,81 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<div class="container-fluid px-4 py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1"><i class="fa-solid fa-city text-primary me-2"></i>City Management</h2>
+            <p class="text-muted small mb-0">Add, edit, or delete graph nodes (cities).</p>
+        </div>
+        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addCityModal">
+            <i class="fa-solid fa-plus me-1"></i> Add New City
+        </button>
+    </div>
+
+    <div class="card glass-card p-4">
+        <div class="table-responsive">
+            <table class="table table-dark table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>City Name</th>
+                        <th>State / Region</th>
+                        <th>Canvas X</th>
+                        <th>Canvas Y</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (cities && cities.length > 0) { %>
+                        <% cities.forEach((city, index) => { %>
+                            <tr>
+                                <td><%= index + 1 %></td>
+                                <td><strong class="text-info"><%= city.name %></strong></td>
+                                <td><%= city.state || '-' %></td>
+                                <td><code><%= city.posX %></code></td>
+                                <td><code><%= city.posY %></code></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteCity('<%= city._id %>', '<%= city.name %>')">
+                                        <i class="fa-solid fa-trash"></i> Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr><td colspan="6" class="text-muted text-center py-3">No cities found</td></tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add City Modal -->
+<div class="modal fade" id="addCityModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light border-secondary">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title fw-bold"><i class="fa-solid fa-plus text-primary me-2"></i>Add City</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="addCityForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">City Name</label>
+                        <input type="text" class="form-control bg-dark text-light border-secondary" id="cityName" required placeholder="e.g. Shimla">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">State / Region</label>
+                        <input type="text" class="form-control bg-dark text-light border-secondary" id="cityState" placeholder="e.g. Himachal Pradesh">
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary fw-bold">Save City</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>

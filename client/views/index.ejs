@@ -1,0 +1,207 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<div class="container-fluid px-4 py-3 hero-gradient">
+    <!-- Header Banner -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2 class="fw-bold mb-1"><i class="fa-solid fa-network-wired text-primary me-2"></i>Graph Pathfinder Laboratory</h2>
+            <p class="text-muted small mb-0">Interactive algorithm execution with step-by-step state inspection, live pseudocode highlighting, and audio voice narration.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-success btn-sm" id="btnComputeMST" title="Compute Minimum Spanning Tree">
+                <i class="fa-solid fa-tree me-1"></i> Compute MST (Prim's)
+            </button>
+            <button class="btn btn-success btn-sm" id="toggleAudioBtn" title="Toggle Web Audio Tones">
+                <i class="fa-solid fa-volume-high me-1"></i> Audio FX
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" id="toggleNarratorBtn" title="Toggle AI Voice Guide">
+                <i class="fa-solid fa-bullhorn me-1"></i> Voice Narrator
+            </button>
+            <button class="btn btn-outline-warning btn-sm" id="btnVoiceSearch" title="Voice Search Route">
+                <i class="fa-solid fa-microphone me-1"></i> Voice Search
+            </button>
+            <button class="btn btn-outline-info btn-sm" id="btnExportJSON"><i class="fa-solid fa-file-export me-1"></i> Export JSON</button>
+            <button class="btn btn-outline-danger btn-sm" id="btnExportPDF"><i class="fa-solid fa-file-pdf me-1"></i> Download PDF</button>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <!-- Control Panel Sidebar -->
+        <div class="col-lg-3">
+            <div class="card glass-card p-3 mb-3">
+                <h5 class="fw-bold mb-3 border-bottom pb-2"><i class="fa-solid fa-sliders text-primary me-2"></i>Pathfinder Config</h5>
+                <form id="routeForm">
+                    <!-- Source City -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-muted">Source City</label>
+                        <select class="form-select bg-dark text-light border-secondary" id="selectSource" required>
+                            <option value="">-- Select Source --</option>
+                            <% if (typeof cities !== 'undefined') { %>
+                                <% cities.forEach(city => { %>
+                                    <option value="<%= city.name %>"><%= city.name %> (<%= city.state %>)</option>
+                                <% }); %>
+                            <% } %>
+                        </select>
+                    </div>
+
+                    <!-- Optional Intermediate Waypoint -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-muted"><i class="fa-solid fa-map-pin text-warning me-1"></i> Intermediate Stop (Optional)</label>
+                        <select class="form-select bg-dark text-light border-secondary" id="selectWaypoint">
+                            <option value="">-- Direct Route (No Stop) --</option>
+                            <% if (typeof cities !== 'undefined') { %>
+                                <% cities.forEach(city => { %>
+                                    <option value="<%= city.name %>"><%= city.name %></option>
+                                <% }); %>
+                            <% } %>
+                        </select>
+                    </div>
+
+                    <!-- Destination City -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-muted">Destination City</label>
+                        <select class="form-select bg-dark text-light border-secondary" id="selectDestination" required>
+                            <option value="">-- Select Destination --</option>
+                            <% if (typeof cities !== 'undefined') { %>
+                                <% cities.forEach(city => { %>
+                                    <option value="<%= city.name %>"><%= city.name %> (<%= city.state %>)</option>
+                                <% }); %>
+                            <% } %>
+                        </select>
+                    </div>
+
+                    <!-- Algorithm Selection -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-muted">Algorithm</label>
+                        <select class="form-select bg-dark text-light border-secondary" id="selectAlgorithm">
+                            <option value="Dijkstra" selected>Dijkstra's Algorithm - O((V+E) log V)</option>
+                            <option value="AStar">A* Search (Euclidean Heuristic) - O((V+E) log V)</option>
+                            <option value="BellmanFord">Bellman-Ford (Negative Cycle Detector) - O(V*E)</option>
+                            <option value="BFS">Breadth-First Search (BFS) - O(V+E)</option>
+                            <option value="DFS">Depth-First Search (DFS) - O(V+E)</option>
+                        </select>
+                    </div>
+
+                    <!-- Weather / Traffic Simulation -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-muted"><i class="fa-solid fa-cloud-sun-rain text-info me-1"></i> Traffic & Weather Condition</label>
+                        <select class="form-select bg-dark text-light border-secondary" id="selectTraffic">
+                            <option value="1.0" selected>☀️ Clear Sky / Normal Highway (1.0x)</option>
+                            <option value="1.5">🌧️ Heavy Rain / Wet Roads (1.5x Distance)</option>
+                            <option value="2.0">🚗 Traffic Jam / Highway Congestion (2.0x Distance)</option>
+                            <option value="3.0">🌪️ Storm Warning / Reduced Visibility (3.0x Distance)</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 fw-bold py-2 shadow">
+                        <i class="fa-solid fa-play me-2"></i> Compute & Animate
+                    </button>
+                </form>
+            </div>
+
+            <!-- Route Result Card -->
+            <div class="card glass-card p-3 d-none" id="resultBanner">
+                <h6 class="fw-bold text-success mb-2"><i class="fa-solid fa-check-circle me-1"></i> Path Calculated</h6>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small text-muted">Effective Distance:</span>
+                    <span class="fw-bold text-warning fs-5" id="totalDistanceText">0 KM</span>
+                </div>
+                <div class="small">
+                    <span class="text-muted d-block mb-1">Optimal Hop Chain:</span>
+                    <div class="p-2 bg-dark rounded border border-secondary text-info fw-semibold" id="pathListText">-</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cytoscape Graph Visualizer Center View -->
+        <div class="col-lg-6">
+            <div class="card glass-card p-2 position-relative mb-3">
+                <div id="cyContainer"></div>
+
+                <!-- Floating Playback Control Bar -->
+                <div class="playback-toolbar d-flex align-items-center gap-3">
+                    <button class="btn btn-sm btn-outline-warning rounded-circle" id="btnStepBackward" title="Previous Step">
+                        <i class="fa-solid fa-backward-step"></i>
+                    </button>
+                    <button class="btn btn-sm btn-primary rounded-circle px-3" id="btnPlay" title="Play Animation">
+                        <i class="fa-solid fa-play"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger rounded-circle px-3" id="btnPause" title="Pause" disabled>
+                        <i class="fa-solid fa-pause"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-warning rounded-circle" id="btnStepForward" title="Next Step">
+                        <i class="fa-solid fa-forward-step"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary rounded-circle" id="btnReset" title="Reset">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </button>
+                    <div class="d-flex align-items-center gap-2 ms-2 border-start ps-3 border-secondary">
+                        <i class="fa-solid fa-gauge-high text-muted small"></i>
+                        <input type="range" class="form-range" id="speedSlider" min="0.5" max="4" step="0.5" value="1" style="width: 80px;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Pseudocode Active Line Inspector -->
+            <div class="card glass-card p-3">
+                <h6 class="fw-bold text-primary mb-2"><i class="fa-solid fa-code me-2"></i>Live Pseudocode Line Execution Tracker</h6>
+                <div class="p-2 bg-dark rounded border border-secondary" id="pseudocodeContainer">
+                    <div class="text-muted small">Select algorithm and click "Compute & Animate" to view live pseudocode tracking.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live DSA Inspector Right Sidebar -->
+        <div class="col-lg-3">
+            <div class="card glass-card p-3 inspector-panel">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="fw-bold mb-0 text-info"><i class="fa-solid fa-bug me-1"></i> Live DSA Inspector</h6>
+                    <span class="badge bg-secondary" id="stepProgressText">Step 0 of 0</span>
+                </div>
+
+                <!-- Explained Step Log -->
+                <div class="step-log-box mb-3">
+                    <div class="text-light small fw-medium" id="stepLogText">Select Source & Destination cities then click "Compute & Animate" to start visualization.</div>
+                </div>
+
+                <!-- Priority Queue / Queue / Stack State -->
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-muted mb-1">Priority Queue (Min-Heap)</label>
+                    <div class="p-2 bg-dark rounded border border-secondary min-h-40" id="heapContainer">
+                        <span class="text-muted small">Queue empty</span>
+                    </div>
+                </div>
+
+                <!-- Visited Set -->
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-muted mb-1">Visited Set</label>
+                    <div class="p-2 bg-dark rounded border border-secondary" id="visitedContainer">
+                        <span class="text-muted small">None visited yet</span>
+                    </div>
+                </div>
+
+                <!-- Distance Table -->
+                <div>
+                    <label class="form-label small fw-bold text-muted mb-1">Distance Matrix</label>
+                    <div class="table-responsive bg-dark rounded border border-secondary" style="max-height: 200px;">
+                        <table class="table table-dark table-sm table-striped align-middle text-center mb-0 table-inspector">
+                            <thead>
+                                <tr class="table-secondary">
+                                    <th>City</th>
+                                    <th>Dist (KM)</th>
+                                    <th>Prev</th>
+                                </tr>
+                            </thead>
+                            <tbody id="distanceTableBody">
+                                <tr><td colspan="3" class="text-muted">No data</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('partials/footer') %>

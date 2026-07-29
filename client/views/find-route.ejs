@@ -1,0 +1,119 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<div class="container py-4">
+    <div class="row g-4">
+        <!-- Route Finder Form & Output -->
+        <div class="col-lg-8">
+            <div class="card glass-card p-4 mb-4">
+                <h3 class="fw-bold mb-3"><i class="fa-solid fa-route text-primary me-2"></i>Find Shortest Route</h3>
+                <form id="routeForm">
+                    <div class="row g-3">
+                        <div class="col-md-5">
+                            <label class="form-label small fw-semibold text-muted">Source City</label>
+                            <select class="form-select bg-dark text-light border-secondary" id="selectSource" required>
+                                <option value="">-- Choose Origin --</option>
+                                <% cities.forEach(city => { %>
+                                    <option value="<%= city.name %>"><%= city.name %> (<%= city.state %>)</option>
+                                <% }); %>
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label small fw-semibold text-muted">Destination City</label>
+                            <select class="form-select bg-dark text-light border-secondary" id="selectDestination" required>
+                                <option value="">-- Choose Target --</option>
+                                <% cities.forEach(city => { %>
+                                    <option value="<%= city.name %>"><%= city.name %> (<%= city.state %>)</option>
+                                <% }); %>
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100 fw-bold">
+                                <i class="fa-solid fa-search me-1"></i> Search
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Side-by-Side Algorithm Comparison Benchmark Card -->
+            <div class="card glass-card p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold text-warning mb-0"><i class="fa-solid fa-gauge-high me-2"></i>Side-by-Side Algorithm Benchmark</h5>
+                    <button class="btn btn-outline-warning btn-sm" id="btnRunBenchmark"><i class="fa-solid fa-bolt me-1"></i> Run Benchmark</button>
+                </div>
+                <p class="text-muted small">Runs Dijkstra, A* Search, Bellman-Ford, BFS, and DFS concurrently to compare nodes explored, execution latency, and path distance.</p>
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover align-middle text-center mb-0">
+                        <thead>
+                            <tr class="table-primary">
+                                <th>Algorithm</th>
+                                <th>Distance (KM)</th>
+                                <th>Nodes Explored</th>
+                                <th>Time (ms)</th>
+                                <th>Efficiency Score</th>
+                            </tr>
+                        </thead>
+                        <tbody id="benchmarkTableBody">
+                            <tr><td colspan="5" class="text-muted">Select Source & Destination and click "Run Benchmark"</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Recent Search History -->
+            <div class="card glass-card p-4">
+                <h5 class="fw-bold mb-3"><i class="fa-solid fa-clock-rotate-left me-2"></i>Recent Search History</h5>
+                <div class="table-responsive">
+                    <table class="table table-dark table-striped">
+                        <thead>
+                            <tr>
+                                <th>Source</th>
+                                <th>Destination</th>
+                                <th>Algorithm</th>
+                                <th>Distance</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (history && history.length > 0) { %>
+                                <% history.forEach(item => { %>
+                                    <tr>
+                                        <td><%= item.sourceCity %></td>
+                                        <td><%= item.destinationCity %></td>
+                                        <td><span class="badge bg-info"><%= item.algorithm %></span></td>
+                                        <td><span class="badge bg-warning text-dark"><%= item.distance %> KM</span></td>
+                                        <td class="small text-muted"><%= new Date(item.searchedAt).toLocaleTimeString() %></td>
+                                    </tr>
+                                <% }); %>
+                            <% } else { %>
+                                <tr><td colspan="5" class="text-muted text-center">No recent searches</td></tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Favorites & Quick Routes Sidebar -->
+        <div class="col-lg-4">
+            <div class="card glass-card p-4 mb-4">
+                <h5 class="fw-bold mb-3 text-warning"><i class="fa-solid fa-star me-2"></i>Saved Favorite Routes</h5>
+                <ul class="list-group list-group-flush bg-transparent">
+                    <% if (favorites && favorites.length > 0) { %>
+                        <% favorites.forEach(fav => { %>
+                            <li class="list-group-item bg-transparent text-light border-secondary px-0">
+                                <div class="fw-bold text-info"><%= fav.sourceCity %> ➔ <%= fav.destinationCity %></div>
+                                <div class="small text-muted"><%= fav.notes || 'Saved corridor' %></div>
+                            </li>
+                        <% }); %>
+                    <% } else { %>
+                        <li class="list-group-item bg-transparent text-muted small px-0">No saved favorites</li>
+                    <% } %>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('partials/footer') %>

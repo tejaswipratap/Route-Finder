@@ -1,0 +1,88 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<div class="container-fluid px-4 py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1"><i class="fa-solid fa-diagram-project text-warning me-2"></i>Graph Visual Editor</h2>
+            <p class="text-muted small mb-0">Drag nodes to adjust canvas coordinates, export layout, or generate random graphs.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-warning btn-sm" id="btnGenRandom"><i class="fa-solid fa-dice me-1"></i> Random Graph</button>
+            <button class="btn btn-outline-info btn-sm" id="btnExportJSON"><i class="fa-solid fa-file-export me-1"></i> Export JSON</button>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-9">
+            <div class="card glass-card p-2">
+                <div id="cyContainer" style="height: 600px;"></div>
+            </div>
+        </div>
+
+        <div class="col-lg-3">
+            <div class="card glass-card p-3 mb-4">
+                <h5 class="fw-bold mb-3"><i class="fa-solid fa-chart-pie me-2 text-info"></i>Graph Metrics</h5>
+                <div class="mb-2 d-flex justify-content-between border-bottom pb-2 border-secondary">
+                    <span class="text-muted small">Total Vertices (V):</span>
+                    <strong class="text-primary" id="statV">-</strong>
+                </div>
+                <div class="mb-2 d-flex justify-content-between border-bottom pb-2 border-secondary">
+                    <span class="text-muted small">Total Edges (E):</span>
+                    <strong class="text-success" id="statE">-</strong>
+                </div>
+                <div class="mb-2 d-flex justify-content-between border-bottom pb-2 border-secondary">
+                    <span class="text-muted small">Graph Density:</span>
+                    <strong class="text-warning" id="statDensity">-</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted small">Average Degree:</span>
+                    <strong class="text-info" id="statDegree">-</strong>
+                </div>
+            </div>
+
+            <div class="card glass-card p-3">
+                <h6 class="fw-bold mb-2 text-muted"><i class="fa-solid fa-info-circle me-1"></i>Editor Instructions</h6>
+                <ul class="small text-muted mb-0 ps-3">
+                    <li class="mb-1">Click & Drag any node to reposition its spatial coordinates.</li>
+                    <li class="mb-1">Scroll mouse wheel over canvas to zoom in/out.</li>
+                    <li class="mb-1">Drag canvas background to pan viewport.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const res = await fetch('/api/stats');
+        const data = await res.json();
+        if (data.success && data.stats) {
+            document.getElementById('statV').innerText = data.stats.totalCities;
+            document.getElementById('statE').innerText = data.stats.totalRoads;
+            document.getElementById('statDensity').innerText = data.stats.density;
+            document.getElementById('statDegree').innerText = data.stats.avgDegree;
+        }
+    } catch(err) {}
+
+    const btnGenRandom = document.getElementById('btnGenRandom');
+    if (btnGenRandom) {
+        btnGenRandom.addEventListener('click', async () => {
+            if (!confirm('Generate random graph? This will overwrite existing cities/roads in DB.')) return;
+            const res = await fetch('/api/random', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ numNodes: 10, numEdges: 16 })
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast(data.message, 'success');
+                setTimeout(() => window.location.reload(), 1000);
+            }
+        });
+    }
+});
+</script>
+
+<%- include('../partials/footer') %>

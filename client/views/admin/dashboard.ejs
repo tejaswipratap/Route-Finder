@@ -1,0 +1,92 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<div class="container-fluid px-4 py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1"><i class="fa-solid fa-chart-line text-primary me-2"></i>Admin Dashboard</h2>
+            <p class="text-muted small mb-0">Logged in as <strong><%= admin ? admin.name : 'Administrator' %></strong></p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="/admin/cities" class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-city me-1"></i> Manage Cities</a>
+            <a href="/admin/roads" class="btn btn-outline-success btn-sm"><i class="fa-solid fa-road me-1"></i> Manage Roads</a>
+            <a href="/admin/graph-editor" class="btn btn-outline-warning btn-sm"><i class="fa-solid fa-diagram-project me-1"></i> Graph Editor</a>
+        </div>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card glass-card p-3 border-start border-primary border-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-muted small text-uppercase font-monospace">Total Cities (Vertices)</span>
+                        <h2 class="fw-bold text-primary mb-0"><%= stats.totalCities %></h2>
+                    </div>
+                    <i class="fa-solid fa-building-flag fs-1 text-primary opacity-50"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card glass-card p-3 border-start border-success border-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-muted small text-uppercase font-monospace">Total Roads (Edges)</span>
+                        <h2 class="fw-bold text-success mb-0"><%= stats.totalRoads %></h2>
+                    </div>
+                    <i class="fa-solid fa-route fs-1 text-success opacity-50"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card glass-card p-3 border-start border-warning border-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-muted small text-uppercase font-monospace">Total Searches Executed</span>
+                        <h2 class="fw-bold text-warning mb-0"><%= stats.totalSearches %></h2>
+                    </div>
+                    <i class="fa-solid fa-magnifying-glass fs-1 text-warning opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity Table -->
+    <div class="card glass-card p-4">
+        <h5 class="fw-bold mb-3"><i class="fa-solid fa-list-check me-2"></i>Recent Pathfinder Activity</h5>
+        <div class="table-responsive">
+            <table class="table table-dark table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>Source</th>
+                        <th>Destination</th>
+                        <th>Algorithm</th>
+                        <th>Distance</th>
+                        <th>Path Chain</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (recentSearches && recentSearches.length > 0) { %>
+                        <% recentSearches.forEach(search => { %>
+                            <tr>
+                                <td><strong class="text-light"><%= search.sourceCity %></strong></td>
+                                <td><strong class="text-light"><%= search.destinationCity %></strong></td>
+                                <td><span class="badge bg-info"><%= search.algorithm %></span></td>
+                                <td><span class="badge bg-warning text-dark"><%= search.distance %> KM</span></td>
+                                <td class="small text-info"><%= search.path ? search.path.join(' ➔ ') : '-' %></td>
+                                <td class="small text-muted"><%= new Date(search.searchedAt).toLocaleString() %></td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr><td colspan="6" class="text-muted text-center py-3">No activity logs recorded yet</td></tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>
