@@ -1,5 +1,5 @@
 /**
- * Route Finder Pro - Main Client Script (Final Deluxe Edition)
+ * Route Finder Pro - Main Client Script (Final Fixed Edition)
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -37,10 +37,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (routeForm) {
         routeForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const source = document.getElementById('selectSource').value;
-            const destination = document.getElementById('selectDestination').value;
+            const source = document.getElementById('selectSource')?.value;
+            const destination = document.getElementById('selectDestination')?.value;
             const waypoint = document.getElementById('selectWaypoint')?.value;
-            const algorithm = document.getElementById('selectAlgorithm').value || 'Dijkstra';
+            const algorithm = document.getElementById('selectAlgorithm')?.value || 'Dijkstra';
             const trafficMultiplier = parseFloat(document.getElementById('selectTraffic')?.value || '1.0');
 
             if (!source || !destination) {
@@ -59,33 +59,62 @@ document.addEventListener('DOMContentLoaded', async () => {
             let totalDist = 0;
             let combinedSteps = [];
 
-            for (let i = 0; i < legNodes.length - 1; i++) {
-                const s = legNodes[i];
-                const d = legNodes[i + 1];
+            // Try client-side calculation first
+            let clientSuccess = true;
+            if (clientGraph.getVertices().length > 0) {
+                for (let i = 0; i < legNodes.length - 1; i++) {
+                    const s = legNodes[i];
+                    const d = legNodes[i + 1];
 
-                let solution;
-                if (algorithm === 'AStar') {
-                    solution = AStarAlgorithm.solve(clientGraph, s, d);
-                } else if (algorithm === 'BellmanFord') {
-                    solution = BellmanFordAlgorithm.solve(clientGraph, s, d);
-                } else if (algorithm === 'BFS') {
-                    solution = BFSAlgorithm.solve(clientGraph, s, d);
-                } else if (algorithm === 'DFS') {
-                    solution = DFSAlgorithm.solve(clientGraph, s, d);
-                } else {
-                    solution = DijkstraAlgorithm.solve(clientGraph, s, d);
+                    let solution;
+                    if (algorithm === 'AStar') {
+                        solution = AStarAlgorithm.solve(clientGraph, s, d);
+                    } else if (algorithm === 'BellmanFord') {
+                        solution = BellmanFordAlgorithm.solve(clientGraph, s, d);
+                    } else if (algorithm === 'BFS') {
+                        solution = BFSAlgorithm.solve(clientGraph, s, d);
+                    } else if (algorithm === 'DFS') {
+                        solution = DFSAlgorithm.solve(clientGraph, s, d);
+                    } else {
+                        solution = DijkstraAlgorithm.solve(clientGraph, s, d);
+                    }
+
+                    if (solution.error || !solution.path || solution.path.length === 0) {
+                        clientSuccess = false;
+                        break;
+                    }
+
+                    if (i === 0) fullPath = [...solution.path];
+                    else fullPath = [...fullPath, ...solution.path.slice(1)];
+
+                    totalDist += Math.round(solution.distance * trafficMultiplier);
+                    if (solution.steps) combinedSteps = [...combinedSteps, ...solution.steps];
                 }
+            } else {
+                clientSuccess = false;
+            }
 
-                if (solution.error || !solution.path || solution.path.length === 0) {
-                    showToast(`No path found between ${s} and ${d}.`, 'danger');
+            // Server-side API fallback if client calculation wasn't available
+            if (!clientSuccess) {
+                try {
+                    const apiRes = await fetch('/api/find-route', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ source, destination, waypoints, algorithm, trafficMultiplier })
+                    });
+                    const apiData = await apiRes.json();
+                    if (apiData.success) {
+                        fullPath = apiData.path || [];
+                        totalDist = apiData.distance || 0;
+                        combinedSteps = apiData.steps || [];
+                    } else {
+                        showToast(apiData.message || 'No route found.', 'danger');
+                        return;
+                    }
+                } catch (err) {
+                    showToast('Server connection error.', 'danger');
                     return;
                 }
-
-                if (i === 0) fullPath = [...solution.path];
-                else fullPath = [...fullPath, ...solution.path.slice(1)];
-
-                totalDist += Math.round(solution.distance * trafficMultiplier);
-                if (solution.steps) combinedSteps = [...combinedSteps, ...solution.steps];
             }
 
             const resultBanner = document.getElementById('resultBanner');
@@ -96,18 +125,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (totalDistanceText) totalDistanceText.innerText = `${totalDist} KM`;
             if (pathListText) pathListText.innerText = fullPath.join(' ➔ ');
 
-            if (animController) {
+            if (animController && combinedSteps.length > 0) {
                 animController.loadSteps(combinedSteps, algorithm);
                 animController.play();
             }
 
-            try {
-                fetch('/api/find-route', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ source, destination, waypoints, algorithm, trafficMultiplier })
-                });
-            } catch (err) {}
+            showToast(`Route found! Total Distance: ${totalDist} KM`, 'success');
         });
     }
 
@@ -136,7 +159,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 animController.play();
             }
 
-            showToast(`Prim's MST calculated! Minimum Total Infrastructure Network Distance: ${mstSolution.totalWeight} KM.`, 'success');
+            showToast(`Prim's MST calculated! Minimum Total Infrastructure Distance: ${mstSolution.totalWeight} KM.`, 'success');
         });
     }
 
